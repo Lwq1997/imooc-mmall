@@ -43,4 +43,12 @@ public class Const {
             return value;
         }
     }
+
+    public interface Cart{
+        int CHECKED=1;     //选中
+        int UN_CHECKED=0;  //未选中
+        String LIMIT_NUM_SUCCESS = "LIMIT_NUM_SUCCESS"; //库存不受限
+        String LIMIT_NUM_FAIL = "LIMIT_NUM_FAIL"; //库存受限
+
+    }
 }
