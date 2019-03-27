@@ -153,7 +153,11 @@ public class CartController {
         return iCartService.selectOrUnSelect(user.getId(),Const.Cart.UN_CHECKED,productId);
     }
 
-
+    /**
+     * 计算购物车中的商品总数
+     * @param session
+     * @return
+     */
     @RequestMapping("get_cart_product_count.do")
     @ResponseBody
     public ServerResponse<Integer> getCartProductCount(HttpSession session){
