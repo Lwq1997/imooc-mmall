@@ -1,6 +1,8 @@
 package com.lwq.mmall.service;
 
+import com.github.pagehelper.PageInfo;
 import com.lwq.mmall.common.ServerResponse;
+import com.lwq.mmall.vo.OrderVo;
 
 import java.util.Map;
 
@@ -16,4 +18,22 @@ public interface IOrderService {
     ServerResponse aliCallback(Map<String,String> params);
 
     ServerResponse<Boolean> queryOrderPayStatus(Integer userId, Long orderNo);
+
+    ServerResponse createOrder(Integer userId, Integer shippingId);
+
+    ServerResponse<String> cancel(Integer userId, Long orderNo);
+
+    ServerResponse getOrderCartProduct(Integer userId);
+
+    ServerResponse<OrderVo> getOrderDetail(Integer userId, Long orderNo);
+
+    ServerResponse<PageInfo> getOrderList(Integer userId, int pageNum, int pageSize);
+
+    ServerResponse<PageInfo> manageList(Integer pageNum, Integer pageSize);
+
+    ServerResponse<OrderVo> manageDetail(Long orderNo);
+
+    ServerResponse<PageInfo> manageSearch(Long orderNo, Integer pageNum, Integer pageSize);
+
+    ServerResponse<String> manageSendGoods(Long orderNo);
 }

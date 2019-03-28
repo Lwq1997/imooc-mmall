@@ -3,17 +3,20 @@ package com.lwq.mmall.controller.portal;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.alipay.demo.trade.config.Configs;
+import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
 import com.lwq.mmall.common.Const;
 import com.lwq.mmall.common.ResponseCode;
 import com.lwq.mmall.common.ServerResponse;
 import com.lwq.mmall.pojo.User;
 import com.lwq.mmall.service.IOrderService;
+import com.lwq.mmall.vo.OrderVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,6 +39,95 @@ public class OrderController {
     @Autowired
     IOrderService iOrderService;
 
+    /**
+     * 创建订单
+     * @param session
+     * @param shippingId
+     * @return
+     */
+    @RequestMapping("create.do")
+    @ResponseBody
+    public ServerResponse create(HttpSession session,Integer shippingId){
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if(user==null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"用户未登录，请先登录");
+        }
+        return iOrderService.createOrder(user.getId(),shippingId);
+    }
+
+    /**
+     * 取消订单
+     * @param session
+     * @param orderNo
+     * @return
+     */
+    @RequestMapping("cancel.do")
+    @ResponseBody
+    public ServerResponse<String> cancel(HttpSession session,Long orderNo){
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if(user==null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"用户未登录，请先登录");
+        }
+        return iOrderService.cancel(user.getId(),orderNo);
+    }
+
+    /**
+     *获取订单的商品信息
+     * @param session
+     * @return
+     */
+    @RequestMapping("get_order_cart_product.do")
+    @ResponseBody
+    public ServerResponse getOrderCartProduct(HttpSession session){
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if(user==null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"用户未登录，请先登录");
+        }
+        return iOrderService.getOrderCartProduct(user.getId());
+    }
+
+    /**
+     * 订单详情detail
+     * @param session
+     * @param orderNo
+     * @return
+     */
+    @RequestMapping("detail.do")
+    @ResponseBody
+    public ServerResponse<OrderVo> detail(HttpSession session, Long orderNo){
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if(user==null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"用户未登录，请先登录");
+        }
+        return iOrderService.getOrderDetail(user.getId(),orderNo);
+    }
+
+    /**
+     * 订单List
+     * @param session
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    @RequestMapping("list.do")
+    @ResponseBody
+    public ServerResponse<PageInfo> list(HttpSession session,
+                                         @RequestParam(value = "pageNum" ,defaultValue = "1") int pageNum,
+                                         @RequestParam(value = "pageSize" ,defaultValue = "10") int pageSize){
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if(user==null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"用户未登录，请先登录");
+        }
+        return iOrderService.getOrderList(user.getId(),pageNum,pageSize);
+    }
+
+    /**
+     * 订单支付
+     * @param session
+     * @param request
+     * @param orderNo
+     * @return
+     */
     @RequestMapping("pay.do")
     @ResponseBody
     public ServerResponse pay(HttpSession session, HttpServletRequest request,Long orderNo){
@@ -47,6 +139,11 @@ public class OrderController {
         return iOrderService.pay(user.getId(),orderNo,path);
     }
 
+    /**
+     * 支付后的回调
+     * @param request
+     * @return
+     */
     @RequestMapping("alipay_callback.do")
     @ResponseBody
     public Object alipayCallback(HttpServletRequest request){
@@ -83,6 +180,12 @@ public class OrderController {
         }
     }
 
+    /**
+     * 查询订单的支付状态
+     * @param session
+     * @param orderNo
+     * @return
+     */
     @RequestMapping("query_order_pay_status.do")
     @ResponseBody
     public ServerResponse<Boolean> queryOrderPayStatus(HttpSession session,Long orderNo){
